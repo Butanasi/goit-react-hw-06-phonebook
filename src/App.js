@@ -1,36 +1,13 @@
-import { useState } from 'react';
 import { Form } from './Components/Form';
-import { nanoid } from 'nanoid';
 import { ContactList } from './Components/ContactList';
 import { Filter } from './Components/Filter';
 import style from './App.module.scss';
-import { useLocalStorage } from './hooks/useLocalStorage';
+import { getContact, getFilter } from './redux/selector';
+import { useSelector } from 'react-redux';
 
 function App() {
-  const [contacts, setContacts] = useLocalStorage('contacts', '');
-
-  const [filter, setFilter] = useState('');
-
-  const deleteContacts = id => {
-    setContacts(prevState => [
-      ...prevState.filter(contact => contact.id !== id),
-    ]);
-  };
-
-  const addContacts = ({ name, number }) => {
-    const findReturnName = contacts.find(contact => contact.name === name);
-
-    if (findReturnName) {
-      alert('This name is already in the phone book ');
-    } else {
-      const contact = {
-        id: nanoid(),
-        name,
-        number,
-      };
-      setContacts(prevState => [...prevState, contact]);
-    }
-  };
+  const contacts = useSelector(getContact);
+  const filter = useSelector(getFilter);
   const getVisibleContacts = () => {
     const normalizedFilter = filter.toLowerCase();
     const visibleContacts = contacts.filter(contact =>
@@ -42,13 +19,10 @@ function App() {
   return (
     <div className={style.container}>
       <h1 className={style.title}>Phonebook</h1>
-      <Form onAddContacts={addContacts} />
+      <Form />
       <h2 className={style.title}>Contacts</h2>
-      <Filter value={filter} onChange={e => setFilter(e.target.value)} />
-      <ContactList
-        contacts={getVisibleContacts()}
-        onDeleteContact={deleteContacts}
-      />
+      <Filter />
+      <ContactList contacts={getVisibleContacts()} />
     </div>
   );
 }
